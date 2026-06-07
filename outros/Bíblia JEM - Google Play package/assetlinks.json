@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "io.github.alfastore_apolo.twa",
-        "sha256_cert_fingerprints": ["43:8A:C2:3F:1A:1A:44:F0:33:64:19:A6:74:CB:6D:58:51:B1:49:5B:F6:66:0C:D3:68:94:C3:32:86:B1:C7:2D"]
-      }
-    }]
