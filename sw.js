@@ -1,5 +1,5 @@
 // Service Worker — Bíblia JEM — v1
-const CACHE = 'bibliajm-v1';
+const CACHE = 'bibliajm-v2';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
