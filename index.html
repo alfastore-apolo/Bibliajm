@@ -506,8 +506,8 @@
     <div class="screen active" id="screen-home">
       <div class="hero" onclick="openDailyModal()">
         <div class="hero-tag"><div class="dot"></div> Versículo do Dia</div>
-        <div class="verse-text">"Porque sou eu que conheço os planos que tenho para vocês — planos de fazê-los prosperar e não de lhes causar dano, planos de dar-lhes esperança e um futuro."</div>
-        <div class="verse-ref">Jeremias 29:11 · NVI</div>
+        <div class="verse-text" id="daily-verse-text"></div>
+        <div class="verse-ref" id="daily-verse-ref"></div>
         <div class="hero-actions">
           <div class="action-btn" onclick="event.stopPropagation();showToast('🔗 Copiado!')">📤 Compartilhar</div>
           <div class="action-btn" id="fav-btn" onclick="event.stopPropagation();toggleFav()">🤍 Favoritar</div>
@@ -524,6 +524,15 @@
         <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">😔</div><div class="label">Triste</div></div>
         <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">🙏</div><div class="label">Grato</div></div>
         <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">💪</div><div class="label">Corajoso</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">😤</div><div class="label">Com raiva</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">🥀</div><div class="label">Perdido</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">💔</div><div class="label">Magoado</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">🔥</div><div class="label">Motivado</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">😴</div><div class="label">Cansado</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">🤍</div><div class="label">Carente</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">🌱</div><div class="label">Recomeçando</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">😟</div><div class="label">Com dúvidas</div></div>
+        <div class="mood-chip" onclick="selectMood(this)"><div class="emoji">❤️</div><div class="label">Apaixonado</div></div>
       </div>
 
       <div class="section-title">Explorar</div>
@@ -775,12 +784,9 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">✨ Reflexão do Dia</div>
-    <div class="modal-ref">Jeremias 29:11 · NVI</div>
-    <div class="modal-verse-box">"Porque sou eu que conheço os planos que tenho para vocês — planos de fazê-los prosperar e não de lhes causar dano, planos de dar-lhes esperança e um futuro."</div>
-    <div class="modal-box">
-      <strong>💡 Reflexão</strong>
-      Esse versículo foi escrito pra um povo exilado, longe de casa, sofrendo. E mesmo assim, Deus diz: <em>eu tenho planos bons pra você</em>. Mesmo nos seus dias mais difíceis, Ele está construindo algo lindo com a sua história. Você não precisa ter tudo resolvido. Só precisa confiar no Arquiteto.
-    </div>
+    <div class="modal-ref" id="modal-daily-ref"></div>
+    <div class="modal-verse-box" id="modal-daily-verse"></div>
+    <div class="modal-box" id="modal-daily-reflection"></div>
     <button class="modal-close" onclick="closeModal('daily')">🙌 Amém!</button>
   </div>
 </div>
@@ -833,7 +839,7 @@
     <div style="background:linear-gradient(135deg,rgba(255,225,53,.13),rgba(255,107,53,.10));border:1px solid rgba(255,225,53,.35);border-radius:18px;padding:22px 18px;text-align:center;margin-bottom:20px;">
       <div style="font-size:36px;margin-bottom:10px;animation:floatIcon 3s ease-in-out infinite;">🌾</div>
       <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:900;letter-spacing:.04em;background:linear-gradient(135deg,var(--yellow),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;">
-        DÍZIMO É FRUTO DE UM CORAÇÃO GRATO A DEUS!!!
+        Honre o Senhor com suas riquezas e com a melhor parte de tudo que produzir. — Provérbios 3.9
       </div>
       <div style="font-size:14px;color:var(--text);font-style:italic;margin-bottom:14px;line-height:1.55;">
         Seja um patrocinador do Reino de Deus.
@@ -845,7 +851,7 @@
           📋 Copiar Chave
         </button>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:12px;font-style:italic;">"Trazei todos os dízimos à casa do tesouro." · Malaquias 3:10</div>
+
     </div>
 
     <button class="modal-close" onclick="closeModal('family')" style="background:linear-gradient(135deg,var(--mint),var(--blue));color:#0D0D1A;">🏠 Fechar</button>
@@ -928,6 +934,7 @@ function goTo(id){
   if(id==='fe') renderFe();
   if(id==='salmos') renderSalmos();
   if(id==='quiz') renderQuiz();
+  if(id==='prayer') renderPrayerStatic(getNextPrayer(currentPrayerCat));
   // Scroll to top
   window.scrollTo(0,0);
   if(screen) screen.scrollTop=0;
@@ -1121,6 +1128,83 @@ function nav(d){const next=curChap+d;if(next<1||next>curBook.c)return;openChapte
 function openDailyModal(){document.getElementById('modal-daily').classList.add('open');}
 function closeModal(id){document.getElementById('modal-'+id).classList.remove('open');}
 
+// ── VERSÍCULO DO DIA — 50 versículos motivacionais ──
+const DAILY_VERSES = [
+  { text: "Porque sou eu que conheço os planos que tenho para vocês — planos de fazê-los prosperar e não de lhes causar dano, planos de dar-lhes esperança e um futuro.", ref: "Jeremias 29:11 · NVI", reflection: "Esse versículo foi escrito pra um povo exilado, longe de casa, sofrendo. E mesmo assim, Deus diz: <em>eu tenho planos bons pra você</em>. Mesmo nos seus dias mais difíceis, Ele está construindo algo lindo com a sua história." },
+  { text: "O Senhor é o meu pastor; nada me faltará.", ref: "Salmo 23:1 · ARA", reflection: "Um pastor não deixa a ovelha se virar sozinha. Ele guia, cuida, protege. Se Deus é o teu Pastor, significa que você nunca andou sozinho — mesmo quando sentiu que sim." },
+  { text: "Tudo posso naquele que me fortalece.", ref: "Filipenses 4:13 · ARA", reflection: "Não é arrogância — é dependência. 'Posso tudo' porque não faço nada sozinho. A força não é sua; é d'Aquele que mora em você. Que diferença isso faz na sua segunda-feira!" },
+  { text: "Buscai, pois, em primeiro lugar o seu reino e a sua justiça, e todas essas coisas vos serão acrescentadas.", ref: "Mateus 6:33 · ARA", reflection: "Quando você coloca Deus no centro, o resto se encaixa. Não porque a vida fica fácil — mas porque você passa a enxergar com os olhos certos. Prioridades revelam valores." },
+  { text: "Deleita-te no Senhor, e ele atenderá aos desejos do teu coração.", ref: "Salmo 37:4 · ARA", reflection: "O segredo não é pedir mais — é se aproximar mais. Quando você se delicia em Deus, seus desejos começam a se alinhar com os d'Ele. É uma transformação por dentro, não só por fora." },
+  { text: "Não temas, porque eu sou contigo; não te assombres, porque eu sou o teu Deus; eu te fortaleço, e te ajudo, e te sustento com a minha destra fiel.", ref: "Isaías 41:10 · ARA", reflection: "Três promessas num versículo só: eu fortaleço, eu ajudo, eu sustento. Deus não terceiriza o cuidado com você. Ele mesmo segura a sua mão." },
+  { text: "Porque Deus não nos deu espírito de covardia, mas de poder, de amor e de equilíbrio.", ref: "2 Timóteo 1:7 · NVI", reflection: "O medo que você sente não veio de Deus. Poder, amor e equilíbrio — esse é o pacote que o Espírito traz. Recuse qualquer coisa que não tenha esse endereço." },
+  { text: "Posso tudo, diz a Bíblia — não no seu próprio nome, mas no nome d'Aquele que te criou, te conhece e nunca te abandonará.", ref: "Romanos 8:31 · NVI", reflection: "Se Deus é a favor de você, quem poderá ser contra? Não é ingenuidade — é a confiança de quem sabe em Quem acredita. Você está no time certo." },
+  { text: "Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento.", ref: "Provérbios 3:5 · ARA", reflection: "O nosso entendimento tem limites. O d'Ele, não. Quando não entender, não tente forçar sentido — entregue. Às vezes a obediência precisa vir antes da compreensão." },
+  { text: "Sede fortes e corajosos. Não temais nem vos aterrorizeis diante deles, porque o Senhor, o teu Deus, é quem vai contigo; não te deixará, nem te abandonará.", ref: "Deuteronômio 31:6 · ARA", reflection: "Coragem não é ausência de medo — é avançar mesmo com medo. E o combustível da coragem bíblica é saber que você não vai sozinho. Deus vai na frente." },
+  { text: "Mas os que esperam no Senhor renovarão as forças, subirão com asas como águias, correrão e não se cansarão, caminharão e não se fatigarão.", ref: "Isaías 40:31 · ARA", reflection: "A renovação começa na espera. Parece contraditório, mas quem aprende a esperar em Deus não perde tempo — encontra energia. A águia não bate asas o tempo todo; ela plana." },
+  { text: "Alegrai-vos sempre no Senhor; outra vez digo: alegrai-vos.", ref: "Filipenses 4:4 · ARA", reflection: "Paulo escreveu isso da prisão. Alegria bíblica não é circunstancial — é uma escolha, um ato de fé. Você pode ser grato mesmo quando não está bem." },
+  { text: "Sede, pois, imitadores de Deus, como filhos amados.", ref: "Efésios 5:1 · ARA", reflection: "A maior aspiração não é ser famoso, rico ou poderoso. É ser parecido com Deus. E isso começa em casa, nas relações, no amor que você oferece sem cobrar de volta." },
+  { text: "Ora, aquele que é poderoso para fazer tudo muito mais abundantemente além do que pedimos ou pensamos, segundo o poder que em nós opera.", ref: "Efésios 3:20 · ARA", reflection: "Deus não está limitado pela sua imaginação. Quando você acha que pediu demais, Ele ainda tem mais. Expanda a sua visão — o Céu é mais criativo do que você." },
+  { text: "Venha a nós o teu reino, seja feita a tua vontade, assim na terra como no céu.", ref: "Mateus 6:10 · ARA", reflection: "Essa oração é uma rendição diária. 'Seja feita a tua vontade' — não porque a minha não importa, mas porque a d'Ele é melhor. É a oração mais libertadora que existe." },
+  { text: "Porque para Deus nada é impossível.", ref: "Lucas 1:37 · ARA", reflection: "Dito a uma mulher idosa que ia ter um filho. Dito a você hoje, qualquer que seja seu impossível. O vocabulário de Deus não inclui 'não tem jeito'." },
+  { text: "O amor é paciente, o amor é bondoso. O amor não inveja, não se vangloria, não se orgulha.", ref: "1 Coríntios 13:4 · NVI", reflection: "Amor de verdade não é sentimento — é decisão. Você pode escolher amar mesmo quando não está com vontade. Isso é o amor que transforma o mundo." },
+  { text: "E conhecereis a verdade, e a verdade vos libertará.", ref: "João 8:32 · ARA", reflection: "A mentira prende, a verdade solta. Seja verdade sobre quem você é, sobre suas falhas, sobre sua fé. A liberdade começa com honestidade — primeiro com Deus, depois com você mesmo." },
+  { text: "Sede transformados pela renovação da vossa mente, para que experimenteis qual seja a boa, agradável e perfeita vontade de Deus.", ref: "Romanos 12:2 · ARA", reflection: "Transformação começa por dentro. Não é a circunstância que muda primeiro — é a mente. Quando você pensa diferente, vê diferente. E quando vê diferente, age diferente." },
+  { text: "Deem graças em todas as circunstâncias, pois esta é a vontade de Deus para vocês em Cristo Jesus.", ref: "1 Tessalonicenses 5:18 · NVI", reflection: "Não é dar graças por tudo — é dar graças em tudo. Mesmo nas crises. A gratidão não nega a dor; ela escolhe uma perspectiva maior do que a dor." },
+  { text: "Ora, a fé é a certeza daquilo que esperamos e a prova das coisas que não vemos.", ref: "Hebreus 11:1 · NVI", reflection: "Fé não é ilusão — é evidência de uma realidade que ainda não dá pra tocar. Você age com base no que Deus disse, não no que os seus olhos alcançam. Isso é confiar de verdade." },
+  { text: "Pois sou eu o Senhor, teu Deus, que segura a tua mão direita e te diz: Não temas, eu te ajudarei.", ref: "Isaías 41:13 · NVI", reflection: "Imagine Deus segurando a sua mão. Não uma força abstrata — uma mão que segura a sua. E dizendo: não tenha medo. Que imagem poderosa para começar o dia." },
+  { text: "Mas, em todas essas coisas, somos mais do que vencedores, por meio daquele que nos amou.", ref: "Romanos 8:37 · ARA", reflection: "Não é 'vencedores apesar de' — é 'mais do que vencedores por meio de'. A vitória não é conquistada; é recebida. Você já está do lado que ganhou." },
+  { text: "Este é o dia que o Senhor fez; regozijemo-nos e alegremo-nos nele.", ref: "Salmo 118:24 · ARA", reflection: "Cada manhã é um presente embalado por Deus. Você não ganhou esse dia — recebeu. Então viva-o com gratidão, propósito e a alegria de quem sabe de onde vem." },
+  { text: "Não vos conformeis com este século, mas transformai-vos pela renovação da vossa mente.", ref: "Romanos 12:2 · ARA", reflection: "O mundo vai tentar te formatar. A fé te convida a ser diferente — não por arrogância, mas porque você foi feito para outro padrão. Seja renovado todos os dias." },
+  { text: "E, quando vos puseram perante reis e governadores por amor do meu nome, isso vos acontecerá para testemunho.", ref: "Lucas 21:12-13 · ARA", reflection: "Suas dificuldades podem ser palco. Cada desafio que você atravessa com fé se torna testemunho para alguém que ainda está no início do caminho." },
+  { text: "Eu vim para que tenham vida e a tenham em abundância.", ref: "João 10:10 · NVI", reflection: "Jesus não veio trazer religião — veio trazer vida. Abundância não é ter muito dinheiro; é ter paz, propósito, amor e esperança em excesso. Isso está disponível para você hoje." },
+  { text: "Aguarda o Senhor; tem bom ânimo, ele fortalecerá o teu coração; aguarda, pois, o Senhor.", ref: "Salmo 27:14 · ARA", reflection: "Esperar não é cruzar os braços — é confiar enquanto age. Deus trabalha no intervalo da espera. O que parece silêncio muitas vezes é preparação." },
+  { text: "Deus é o nosso refúgio e a nossa força, socorro bem presente na angústia.", ref: "Salmo 46:1 · ARA", reflection: "Refúgio é o lugar onde você vai quando tudo desmorona. Deus não é um plano B — é o lugar mais seguro que existe. Corra pra Ele primeiro, não por último." },
+  { text: "Mas o Senhor é fiel; ele os fortalecerá e os protegerá do mal.", ref: "2 Tessalonicenses 3:3 · NVI", reflection: "A fidelidade de Deus não depende da sua fidelidade. Quando você falha, Ele não desiste. Quando você cai, Ele não vira as costas. Isso é graça." },
+  { text: "Sede, pois, também vós pacientes; fortalecei os vossos corações, porque a vinda do Senhor está próxima.", ref: "Tiago 5:8 · ARA", reflection: "Paciência não é fraqueza — é fé no tempo de Deus. Quem entende que Ele é soberano sobre o calendário aprende a esperar sem ansiedade." },
+  { text: "Não se afastem deste livro da Lei; medite nele dia e noite, para que você possa fazer tudo o que nele está escrito.", ref: "Josué 1:8 · NVI", reflection: "A Palavra não é leitura obrigatória — é combustível. Quanto mais você a medita, mais ela forma seu pensamento, suas decisões, sua visão de mundo." },
+  { text: "Portanto, não desfalecemos; mas ainda que o nosso homem exterior se corrompa, o interior, contudo, se renova de dia em dia.", ref: "2 Coríntios 4:16 · ARA", reflection: "Por fora pode estar cansando. Por dentro, algo está sendo construído. Não desanime do processo — a renovação interior é o que realmente importa." },
+  { text: "E tudo quanto fizerdes, fazei-o de todo o coração, como para o Senhor e não para os homens.", ref: "Colossenses 3:23 · ARA", reflection: "Faça bem feito não pelo aplauso — mas pela audiência. Quando você trabalha como se estivesse diante de Deus, até a tarefa mais simples vira adoração." },
+  { text: "O coração do homem planeja o seu caminho, mas o Senhor lhe dirige os passos.", ref: "Provérbios 16:9 · NVI", reflection: "Planeje. Sonhe. Trabalhe. Mas solte o controle. Deus conhece os caminhos que você ainda não viu. Sua parte é caminhar com fidelidade; a d'Ele é conduzir." },
+  { text: "O nome do Senhor é uma torre forte; para ela corre o justo e fica em alto e salvo.", ref: "Provérbios 18:10 · ARA", reflection: "Quando tudo desmorona ao redor, há um nome que não falha. Não corra para pessoas, status ou dinheiro primeiro — corra para o nome que é torre forte." },
+  { text: "Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo.", ref: "Salmo 23:4 · ARA", reflection: "O versículo não diz que você não passará pelo vale — diz que não andará sozinho. A presença de Deus não elimina os vales; ela torna possível atravessá-los." },
+  { text: "Não há amor maior do que dar a própria vida pelos amigos.", ref: "João 15:13 · NVI", reflection: "Jesus não apenas disse isso — fez. Quando a vida parecer injusta, lembre: Você é amado por Alguém que deu tudo. Esse amor não tem preço e não tem prazo de validade." },
+  { text: "Busca a Deus e viverás.", ref: "Amós 5:4 · NVI", reflection: "Quatro palavras. A resposta para tudo. Não busque primeiro as bênçãos — busque o Benfeitor. A vida de verdade começa quando você encontra Deus, não quando resolve seus problemas." },
+  { text: "Porque o Senhor, teu Deus, está no meio de ti como um herói que salva. Ele se alegrará em ti com prazer, renovará o seu amor, exultará sobre ti com cânticos de alegria.", ref: "Sofonias 3:17 · ARA", reflection: "Deus canta sobre você. Ele não apenas te tolera — se alegra com você. Quando você se sentir invisível, lembre que o Criador do universo canta uma música com o seu nome." },
+  { text: "O fruto do Espírito, porém, é: amor, alegria, paz, longanimidade, benignidade, bondade, fidelidade, mansidão, domínio próprio.", ref: "Gálatas 5:22-23 · ARA", reflection: "Esse fruto não é conquistado pelo esforço — é produzido pela conexão. Uma árvore não luta pra dar fruto; ela fica na terra certa. Você fica em Deus, o fruto vem naturalmente." },
+  { text: "Entrega o teu caminho ao Senhor; confia nele, e ele tudo fará.", ref: "Salmo 37:5 · ARA", reflection: "Entregue não é desistir — é confiar. A diferença entre preocupação e oração está em quem fica com o problema. Deixa nas mãos de Deus." },
+  { text: "A paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos pensamentos em Cristo Jesus.", ref: "Filipenses 4:7 · ARA", reflection: "É uma paz que não faz sentido racionalmente. No meio da crise, uma calma inexplicável. Esse é o cartão de visitas do Espírito Santo — paz onde não deveria haver." },
+  { text: "Porque eu estou convencido de que nem a morte, nem a vida, nem os anjos, nem os principados, nem as coisas do presente, nem as do futuro poderão nos separar do amor de Deus.", ref: "Romanos 8:38-39 · ARA", reflection: "Paulo listou tudo que poderia separar você de Deus — e disse: nada consegue. O amor d'Ele não tem condição de saída. Você está seguro." },
+  { text: "Cria em mim, ó Deus, um coração puro e renova em mim um espírito inabalável.", ref: "Salmo 51:10 · NVI", reflection: "Essa foi a oração de alguém que havia errado muito. E Deus respondeu. Não importa o que você fez — essa oração ainda funciona. Um coração novo está disponível para você hoje." },
+  { text: "Se Deus é por nós, quem será contra nós?", ref: "Romanos 8:31 · ARA", reflection: "Não uma pergunta retórica — uma declaração de confiança. Quando Deus está do seu lado, os obstáculos não definem o resultado. Você está coberto." },
+  { text: "Não deixe ninguém desprezar você por ser jovem, mas seja um exemplo para os fiéis em palavra, conduta, amor, fé e pureza.", ref: "1 Timóteo 4:12 · NVI", reflection: "Sua juventude não é desculpa nem limitação. É poder. O mundo precisa de jovens que não esperem ter 40 anos para viver com propósito. Comece hoje, exatamente onde você está." },
+  { text: "O Senhor te abençoe e te guarde; o Senhor faça resplandecer o rosto sobre ti e seja gracioso para contigo.", ref: "Números 6:24-25 · ARA", reflection: "Essa é a bênção mais antiga da Bíblia — e ainda vale. Deus não te abençoa por mérito; abençoa por graça. Receba isso hoje com mãos abertas." },
+  { text: "Onde quer que você for, eu irei; onde você pousar, eu pousarei. O teu povo é o meu povo, e o teu Deus é o meu Deus.", ref: "Rute 1:16 · NVI", reflection: "Lealdade assim não é fraqueza — é uma das coisas mais fortes que existem. Relacionamentos que sobrevivem ao sofrimento são os que realmente transformam a vida." },
+  { text: "Pois todos os que são guiados pelo Espírito de Deus são filhos de Deus.", ref: "Romanos 8:14 · NVI", reflection: "Filho não é servo. Filho herda, filho tem acesso, filho tem o sobrenome do Pai. Você não precisa se provar — você já pertence. Deixe o Espírito te guiar como filho." }
+];
+
+// Seleciona o versículo do dia baseado no dia do ano (fixo por dia)
+function getDailyVerse() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  return DAILY_VERSES[dayOfYear % DAILY_VERSES.length];
+}
+
+(function initDailyVerse() {
+  const v = getDailyVerse();
+  document.getElementById('daily-verse-text').textContent = '\u201c' + v.text + '\u201d';
+  document.getElementById('daily-verse-ref').textContent = v.ref;
+})();
+
+function openDailyModal() {
+  const v = getDailyVerse();
+  document.getElementById('modal-daily-ref').textContent = v.ref;
+  document.getElementById('modal-daily-verse').textContent = '\u201c' + v.text + '\u201d';
+  document.getElementById('modal-daily-reflection').innerHTML = '<strong>💡 Reflexão</strong> ' + v.reflection;
+  document.getElementById('modal-daily').classList.add('open');
+}
+function closeModal(id){document.getElementById('modal-'+id).classList.remove('open');}
+
 // ── MISC ──
 async function selectMood(el){
   document.querySelectorAll('.mood-chip').forEach(c=>c.classList.remove('active'));
@@ -1134,32 +1218,107 @@ const MOOD_FALLBACKS = {
   'Alegre': [
     {verse:'Este é o dia que o Senhor fez; regozijemo-nos e nos alegremos nele.',ref:'Salmo 118:24',reflection:'Sua alegria é um presente de Deus — celebre com todo o coração!'},
     {verse:'A alegria do Senhor é a minha força.',ref:'Neemias 8:10',reflection:'Que essa alegria seja o combustível da sua caminhada hoje.'},
-    {verse:'Alegrai-vos sempre no Senhor! Repito: alegrai-vos!',ref:'Filipenses 4:4',reflection:'Paulo escreveu isso na prisão. Sua alegria pode ser maior que qualquer circunstância.'}
+    {verse:'Alegrai-vos sempre no Senhor! Repito: alegrai-vos!',ref:'Filipenses 4:4',reflection:'Paulo escreveu isso na prisão. Sua alegria pode ser maior que qualquer circunstância.'},
+    {verse:'O coração alegre é um bom remédio.',ref:'Provérbios 17:22',reflection:'Deus colocou essa alegria em você. Não a desperdice!'},
+    {verse:'Cantai ao Senhor um cântico novo, porque ele fez maravilhas.',ref:'Salmo 98:1',reflection:'Sua alegria hoje é testemunho das maravilhas de Deus na sua vida.'}
   ],
   'Com fé': [
     {verse:'Ora, a fé é a certeza daquilo que esperamos e a prova das coisas que não vemos.',ref:'Hebreus 11:1',reflection:'Você não precisa ver para crer. A fé antecede o milagre.'},
     {verse:'Tudo é possível ao que crê.',ref:'Marcos 9:23',reflection:'Jesus não disse "quase tudo". Disse TUDO. Creia sem limites.'},
-    {verse:'Porque pela fé vocês andam, e não pelo que veem.',ref:'2 Coríntios 5:7',reflection:'Mesmo sem ver o destino inteiro, dê o próximo passo com fé.'}
+    {verse:'Porque pela fé vocês andam, e não pelo que veem.',ref:'2 Coríntios 5:7',reflection:'Mesmo sem ver o destino inteiro, dê o próximo passo com fé.'},
+    {verse:'Confiai no Senhor com todo o vosso coração e não vos apoieis no vosso próprio entendimento.',ref:'Provérbios 3:5',reflection:'Sua lógica tem limites. A fé vai além de onde sua mente consegue chegar.'},
+    {verse:'Peçam e será dado a vocês; busquem e encontrarão.',ref:'Mateus 7:7',reflection:'A fé age. Ela pede, busca e bate. Não desista antes da resposta.'}
   ],
   'Ansioso': [
     {verse:'Não andem ansiosos por coisa alguma, mas em tudo, pela oração e súplicas, com ação de graças, apresentem seus pedidos a Deus.',ref:'Filipenses 4:6',reflection:'A ansiedade convida você a orar. Entregue cada preocupação ao Pai.'},
     {verse:'Lançai sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós.',ref:'1 Pedro 5:7',reflection:'Você não foi feito para carregar isso sozinho. Há um Pai que cuida de você.'},
-    {verse:'Aquietai-vos e sabei que eu sou Deus.',ref:'Salmo 46:10',reflection:'Às vezes a coisa mais corajosa é parar, respirar e confiar que Ele é Deus.'}
+    {verse:'Aquietai-vos e sabei que eu sou Deus.',ref:'Salmo 46:10',reflection:'Às vezes a coisa mais corajosa é parar, respirar e confiar que Ele é Deus.'},
+    {verse:'A paz de Deus, que excede todo o entendimento, guardará os seus corações e as suas mentes em Cristo Jesus.',ref:'Filipenses 4:7',reflection:'Existe uma paz que não faz sentido na lógica humana. Ela está disponível para você agora.'},
+    {verse:'Não deixeis que o vosso coração se turbe; credes em Deus, crede também em mim.',ref:'João 14:1',reflection:'Jesus fala diretamente ao seu coração agitado: confie em Mim.'}
   ],
   'Triste': [
     {verse:'O Senhor está perto dos que têm o coração quebrantado e salva os de espírito abatido.',ref:'Salmo 34:18',reflection:'Na sua dor mais profunda, Deus está mais próximo do que você imagina.'},
     {verse:'Ele cura os que têm o coração partido e cuida das suas feridas.',ref:'Salmo 147:3',reflection:'Deus não foge da sua tristeza — Ele entra nela com você.'},
-    {verse:'Jesus chorou.',ref:'João 11:35',reflection:'Jesus também chorou. Sua dor é válida. Você não está só.'}
+    {verse:'Jesus chorou.',ref:'João 11:35',reflection:'Jesus também chorou. Sua dor é válida. Você não está só.'},
+    {verse:'Os que semeiam com lágrimas colherão com alegria.',ref:'Salmo 126:5',reflection:'Sua dor de hoje é semente. A colheita de alegria está vindo.'},
+    {verse:'Bendito seja o Deus e Pai de nosso Senhor Jesus Cristo, o Pai das misericórdias e o Deus de toda a consolação.',ref:'2 Coríntios 1:3',reflection:'Deus tem um nome especial: o Consolador. Ele veio exatamente para este momento.'}
   ],
   'Grato': [
     {verse:'Em tudo dai graças, porque esta é a vontade de Deus em Cristo Jesus para convosco.',ref:'1 Tessalonicenses 5:18',reflection:'Gratidão não é ignorar os problemas, é enxergar Deus em meio a eles.'},
     {verse:'Dai graças ao Senhor, porque ele é bom; o seu amor dura para sempre.',ref:'Salmo 107:1',reflection:'O amor de Deus por você nunca teve início e nunca terá fim.'},
-    {verse:'O que ofereço a Deus como sacrifício é um espírito quebrantado.',ref:'Salmo 51:17',reflection:'Gratidão genuína é o perfume mais doce que sobe aos céus.'}
+    {verse:'Toda boa dádiva e todo dom perfeito vêm do alto.',ref:'Tiago 1:17',reflection:'Cada coisa boa na sua vida tem a impressão digital de Deus.'},
+    {verse:'O que te faz superior aos outros? O que tens que não tenhas recebido?',ref:'1 Coríntios 4:7',reflection:'Gratidão começa quando percebemos que tudo é presente. Nada é merecimento.'},
+    {verse:'Bendize, ó minha alma, ao Senhor, e não te esqueças de nenhum dos seus benefícios.',ref:'Salmo 103:2',reflection:'Faça uma lista. Você vai se surpreender com o quanto Deus já fez.'}
   ],
   'Corajoso': [
     {verse:'Não te disse eu que, se creres, verás a glória de Deus?',ref:'João 11:40',reflection:'Deus está esperando você dar o primeiro passo corajoso.'},
     {verse:'Porque Deus não nos deu espírito de covardia, mas de poder, de amor e de equilíbrio.',ref:'2 Timóteo 1:7',reflection:'O medo não vem de Deus. Levante-se — você carrega o Espírito de poder!'},
-    {verse:'Sê forte e corajoso. Não te atemorizes nem te espantes, porque o Senhor, teu Deus, é contigo por onde quer que andares.',ref:'Josué 1:9',reflection:'Deus não disse que seria fácil — disse que estaria contigo. Isso é suficiente.'}
+    {verse:'Sê forte e corajoso. Não te atemorizes nem te espantes, porque o Senhor, teu Deus, é contigo por onde quer que andares.',ref:'Josué 1:9',reflection:'Deus não disse que seria fácil — disse que estaria contigo. Isso é suficiente.'},
+    {verse:'Posso tudo naquele que me fortalece.',ref:'Filipenses 4:13',reflection:'Não é sobre o que você consegue sozinho. É sobre o que Deus faz através de você.'},
+    {verse:'O Senhor é a minha luz e a minha salvação; a quem temerei?',ref:'Salmo 27:1',reflection:'Com Deus ao seu lado, o medo não tem argumento.'}
+  ],
+  'Com raiva': [
+    {verse:'Irai-vos, mas não pequeis; não deixeis que o sol se ponha sobre a vossa ira.',ref:'Efésios 4:26',reflection:'Sentir raiva não é pecado. O pecado é deixar ela controlar suas ações.'},
+    {verse:'O homem iracundo provoca contendas, mas o homem paciente aplaca a briga.',ref:'Provérbios 15:18',reflection:'Respira. Uma resposta dada com raiva pode custar uma amizade de anos.'},
+    {verse:'Sede pacientes, assim como o agricultor que espera o precioso fruto da terra.',ref:'Tiago 5:7',reflection:'Paciência não é fraqueza. É saber que o tempo de Deus produz os melhores frutos.'},
+    {verse:'Não te apresses no teu espírito a encolerizar-te, porque a ira repousa no seio dos tolos.',ref:'Eclesiastes 7:9',reflection:'Antes de agir, pergunte: isso vai importar em 5 anos? Deixe Deus ser o juiz.'},
+    {verse:'Melhor é o longânimo do que o herói, e o que domina o seu espírito do que o que toma uma cidade.',ref:'Provérbios 16:32',reflection:'A maior vitória não é vencer o outro — é vencer a si mesmo.'}
+  ],
+  'Perdido': [
+    {verse:'O Senhor é o meu pastor; nada me faltará.',ref:'Salmo 23:1',reflection:'Quando você se sente perdido, lembre: você tem um Pastor que nunca dorme.'},
+    {verse:'Confiai no Senhor com todo o vosso coração e não vos apoieis no vosso próprio entendimento. Reconhecei-o em todos os teus caminhos, e ele endireitará as tuas veredas.',ref:'Provérbios 3:5-6',reflection:'Você não precisa enxergar o caminho todo. Só dê o próximo passo com Ele.'},
+    {verse:'Porque eu sei os planos que tenho para vocês, diz o Senhor, planos de fazê-los prosperar e não de causar dano, planos de dar a vocês esperança e um futuro.',ref:'Jeremias 29:11',reflection:'Mesmo sem mapa, você tem um destino. E Deus conhece cada curva do caminho.'},
+    {verse:'Lâmpada para os meus pés é tua palavra e luz para o meu caminho.',ref:'Salmo 119:105',reflection:'Você não precisa ver o trajeto todo. Só precisa de luz suficiente para o próximo passo.'},
+    {verse:'Ensina-me, Senhor, o teu caminho, e guia-me numa senda plana.',ref:'Salmo 27:11',reflection:'Pedir direção a Deus não é fraqueza — é a decisão mais sábia que você pode tomar.'}
+  ],
+  'Magoado': [
+    {verse:'Sede bondosos e compassivos uns para com os outros, perdoando-vos mutuamente, assim como Deus vos perdoou em Cristo.',ref:'Efésios 4:32',reflection:'Perdoar não é fingir que não doeu. É se recusar a deixar a mágoa prender você.'},
+    {verse:'Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará.',ref:'Mateus 6:14',reflection:'O perdão liberta primeiro quem perdoa — não quem é perdoado.'},
+    {verse:'O Senhor está perto dos que têm o coração quebrantado.',ref:'Salmo 34:18',reflection:'Sua dor chegou até Deus. Ele está aqui, bem ao seu lado agora.'},
+    {verse:'Abençoai os que vos perseguem; abençoai e não amaldiçoeis.',ref:'Romanos 12:14',reflection:'Isso parece impossível, mas é exatamente aí que o sobrenatural de Deus se manifesta.'},
+    {verse:'Não vos vingueis a vós mesmos, mas dai lugar à ira de Deus.',ref:'Romanos 12:19',reflection:'Solte o peso da vingança. Deus é um juiz justo — e você pode descansar nisso.'}
+  ],
+  'Motivado': [
+    {verse:'Tudo o que fizerem, façam de todo o coração, como para o Senhor.',ref:'Colossenses 3:23',reflection:'Quando você trabalha para Deus, nunca está desperdiçando energia.'},
+    {verse:'Não nos cansemos de fazer o bem, pois no tempo próprio colheremos, se não desanimarmos.',ref:'Gálatas 6:9',reflection:'Continue! A colheita está chegando para quem não desiste.'},
+    {verse:'Tudo posso naquele que me fortalece.',ref:'Filipenses 4:13',reflection:'Esse fogo que você sente hoje? É o Espírito de Deus em você. Vai fundo!'},
+    {verse:'Sede, pois, firmes e inabaláveis, sempre abundantes na obra do Senhor.',ref:'1 Coríntios 15:58',reflection:'Sua dedicação hoje não é em vão. Deus vê cada detalhe do seu esforço.'},
+    {verse:'Esforçai-vos e tende bom ânimo; não temais, nem vos assusteis diante deles, porque o Senhor, vosso Deus, é o que vai convosco.',ref:'Deuteronômio 31:6',reflection:'Vai com tudo! Você não está sozinho nessa missão.'}
+  ],
+  'Cansado': [
+    {verse:'Vinde a mim, todos os que estais cansados e sobrecarregados, e eu vos aliviarei.',ref:'Mateus 11:28',reflection:'Jesus não pediu para você aguentar tudo sozinho. Ele te chama para descansar nEle.'},
+    {verse:'Os que esperam no Senhor renovam as suas forças. Voam alto como águias; correm e não ficam exaustos, andam e não se cansam.',ref:'Isaías 40:31',reflection:'O cansaço que você sente agora é o sinal de que você precisa esperar no Senhor.'},
+    {verse:'O meu jugo é suave e o meu fardo é leve.',ref:'Mateus 11:30',reflection:'Talvez você esteja carregando pesos que nunca foram seus. Entregue para Jesus.'},
+    {verse:'Ele dá força ao cansado e multiplica o vigor ao que não tem nenhuma energia.',ref:'Isaías 40:29',reflection:'Mesmo quando sua energia acabar, a de Deus está apenas começando.'},
+    {verse:'Descansa no Senhor e espera por ele.',ref:'Salmo 37:7',reflection:'Descansar em Deus não é preguiça — é o ato de fé mais profundo que existe.'}
+  ],
+  'Carente': [
+    {verse:'Deus é amor, e quem permanece no amor permanece em Deus, e Deus nele.',ref:'1 João 4:16',reflection:'Você foi feito para ser amado. E o maior amor do universo está te olhando agora.'},
+    {verse:'Porque o Senhor te ama com amor eterno; por isso, com benignidade te atraiu.',ref:'Jeremias 31:3',reflection:'Não é um amor passageiro. É eterno, e é todo seu.'},
+    {verse:'Eu estarei contigo; não te deixarei, nem te abandonarei.',ref:'Josué 1:5',reflection:'Mesmo quando todos partirem, Deus prometeu ficar. Essa promessa nunca expira.'},
+    {verse:'Como um pai se compadece dos filhos, assim o Senhor se compadece dos que o temem.',ref:'Salmo 103:13',reflection:'Você tem um Pai perfeito — que te enxerga, te entende e te abraça.'},
+    {verse:'Pois estou convicto de que nem a morte nem a vida... nada poderá nos separar do amor de Deus.',ref:'Romanos 8:38-39',reflection:'Nada. Absolutamente nada. Você está seguro no amor de Deus.'}
+  ],
+  'Recomeçando': [
+    {verse:'Portanto, se alguém está em Cristo, é nova criatura. As coisas antigas já passaram; eis que surgiram coisas novas!',ref:'2 Coríntios 5:17',reflection:'Seu passado não define seu futuro. Em Cristo, você tem um começo novo todo dia.'},
+    {verse:'As misericórdias do Senhor não têm fim, pois as suas compaixões não se esgotam. Renovam-se cada manhã.',ref:'Lamentações 3:22-23',reflection:'Cada amanhecer é uma nova chance. Deus renova tudo — inclusive você.'},
+    {verse:'Não vos lembreis das coisas passadas; eis que farei uma coisa nova.',ref:'Isaías 43:18-19',reflection:'Deus está mais animado com o seu futuro do que arrependido com o seu passado.'},
+    {verse:'Ele restaura a minha alma.',ref:'Salmo 23:3',reflection:'Restaurar significa trazer de volta ao original. Deus sabe exatamente quem você foi feito para ser.'},
+    {verse:'O Senhor reedificará Sião; ele aparecerá na sua glória.',ref:'Salmo 102:16',reflection:'O que foi destruído pode ser reedificado. Deus é especialista em reconstruções.'}
+  ],
+  'Com dúvidas': [
+    {verse:'Se algum de vocês tem falta de sabedoria, peça-a a Deus, que a todos dá livremente e sem rodeios.',ref:'Tiago 1:5',reflection:'Dúvida honesta é o ponto de partida para uma fé mais profunda. Pergunte a Deus.'},
+    {verse:'Senhor, eu creio. Ajuda a minha incredulidade!',ref:'Marcos 9:24',reflection:'Essa foi a oração mais honesta da Bíblia. Deus honra quem vem com sinceridade.'},
+    {verse:'Pois agora vemos como por espelho, obscuramente, mas então veremos face a face.',ref:'1 Coríntios 13:12',reflection:'Não ter todas as respostas não é fraqueza — é honestidade. A clareza virá.'},
+    {verse:'E vós me buscareis e me achareis, quando me buscardes de todo o vosso coração.',ref:'Jeremias 29:13',reflection:'A dúvida que te faz buscar Deus é mais santa do que a certeza que te faz parar.'},
+    {verse:'Tomé, porque me viste, creste. Bem-aventurados os que não viram e creram.',ref:'João 20:29',reflection:'Jesus não expulsou Tomé por duvidar — Ele se revelou a ele. Ele fará o mesmo por você.'}
+  ],
+  'Apaixonado': [
+    {verse:'O amor é paciente, o amor é bondoso. Não tem inveja, não se vangloria, não é orgulhoso.',ref:'1 Coríntios 13:4',reflection:'O amor que Deus criou é o mais lindo do universo. Cuide bem disso.'},
+    {verse:'Aquele que encontrou uma esposa encontrou uma coisa boa e obteve o favor do Senhor.',ref:'Provérbios 18:22',reflection:'O amor verdadeiro é presente de Deus — honre-o e cuide com carinho.'},
+    {verse:'Que a vossa fala seja sempre agradável, temperada com sal, para que saibais como deveis responder a cada um.',ref:'Colossenses 4:6',reflection:'Nas relações, as palavras constroem ou destroem. Use-as com amor e sabedoria.'},
+    {verse:'Sobretudo, porém, revesti-vos de amor, que é o vínculo da perfeição.',ref:'Colossenses 3:14',reflection:'O amor não é apenas sentimento — é uma escolha diária de colocar o outro em primeiro lugar.'},
+    {verse:'Nós amamos porque ele nos amou primeiro.',ref:'1 João 4:19',reflection:'Todo amor verdadeiro tem origem em Deus. Deixe o amor dEle transbordar para quem você ama.'}
   ]
 };
 
@@ -1183,7 +1342,16 @@ async function fetchMoodVerses(emoji, label, contentEl, subEl) {
     'Ansioso':'ansioso, preocupado e com o coração agitado',
     'Triste':'triste, entristecido e emocionalmente abalado',
     'Grato':'grato e reconhecido pelas bênçãos de Deus',
-    'Corajoso':'corajoso, determinado e pronto para enfrentar desafios'
+    'Corajoso':'corajoso, determinado e pronto para enfrentar desafios',
+    'Com raiva':'com raiva, irritado e precisando de paz interior',
+    'Perdido':'perdido, sem direção e buscando propósito',
+    'Magoado':'magoado, ferido por alguém e precisando de cura e perdão',
+    'Motivado':'motivado, cheio de energia e pronto para agir pela fé',
+    'Cansado':'cansado, esgotado e precisando de renovação e descanso',
+    'Carente':'carente, solitário e precisando sentir o amor de Deus',
+    'Recomeçando':'recomeçando, buscando um novo início e restauração',
+    'Com dúvidas':'com dúvidas sobre a fé, buscando clareza e certeza',
+    'Apaixonado':'apaixonado e buscando sabedoria bíblica sobre o amor'
   };
   const desc = moodMap[label] || label;
   try {
@@ -1234,40 +1402,141 @@ function toggleFav(){const btn=document.getElementById('fav-btn');const f=btn.te
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 
 // ── PRAYER ──
-const PRAYER_STATIC = {
-  purpose: {
-    title: "🎯 Oração do Propósito",
-    text: "Senhor, Tu me conheces antes de eu me conhecer. Criaste cada detalhe da minha vida com um propósito que vai além da minha compreensão. Hoje, escolho confiar no Teu plano — mesmo quando não entendo o caminho. Transforma meus talentos, minhas dores e minha história em instrumentos do Teu Reino. Que a minha vida não seja sobre mim, mas sobre Aquele que me criou. Que eu viva com propósito, paixão e clareza sobre quem Tu és em mim. Amém.",
-    verse: "Jeremias 29:11 — Porque sou eu que conheço os planos que tenho para vocês — planos de fazê-los prosperar."
-  },
-  faith: {
-    title: "✝️ Oração da Fé",
-    text: "Pai, há momentos em que a minha fé tremeu. Dias em que o silêncio pareceu abandono. Mas hoje eu me lembro: Tu nunca me deixaste. Aumenta a minha fé — não a fé que precisa ver para crer, mas a fé que crê antes de ver. Que eu me aferre à Tua Palavra como âncora da minha alma. Quando as tempestades vierem, que eu lembre que Tu já venceste. Amém.",
-    verse: "Hebreus 11:1 — Fé é a certeza daquilo que esperamos e a prova das coisas que não vemos."
-  },
-  strength: {
-    title: "💪 Oração da Força",
-    text: "Deus Forte, reconheço que sozinho não consigo. Minhas forças têm limite, mas as Tuas não. Enche-me do Teu Espírito Santo — não para que eu pareça forte, mas para que Tu sejas glorificado na minha fraqueza. Quando a ansiedade apertar, quando o cansaço for fundo — que eu encontre renovação na Tua presença. Sou Teu e isso é suficiente. Amém.",
-    verse: "Filipenses 4:13 — Posso tudo naquele que me fortalece."
-  },
-  gratitude: {
-    title: "🙌 Oração de Gratidão",
-    text: "Senhor, obrigado. Obrigado pelos dias difíceis que me moldaram. Obrigado pelas pessoas que colocastes no meu caminho. Obrigado pela salvação — o maior presente que jamais poderia receber. Que a gratidão seja o ritmo da minha vida. Que eu nunca me acostume com a Tua graça. Que eu enxergue Tua mão em tudo — no pequeno e no grande. Amém.",
-    verse: "1 Tessalonicenses 5:18 — Deem graças em todas as circunstâncias."
-  },
-  youth: {
-    title: "🌟 Oração da Juventude",
-    text: "Deus dos jovens, aqui estou! Jovem, cheio de sonhos, dúvidas e paixão. Usa esta geração, Senhor. Usa a nossa música, a nossa criatividade, a nossa coragem para transformar o mundo. Que nós não sejamos desprezados por ser jovens — mas que sejamos exemplos em amor, fé e pureza. Que o Teu fogo queime em cada coração jovem do Brasil. Amém.",
-    verse: "1 Timóteo 4:12 — Não deixe ninguém desprezar você por ser jovem, mas seja um exemplo."
-  }
+const PRAYERS = {
+  purpose: [
+    {
+      title: "🎯 Oração do Propósito",
+      text: "Senhor, Tu me conheces antes de eu me conhecer. Criaste cada detalhe da minha vida com um propósito que vai além da minha compreensão. Hoje, escolho confiar no Teu plano — mesmo quando não entendo o caminho. Transforma meus talentos, minhas dores e minha história em instrumentos do Teu Reino. Que a minha vida não seja sobre mim, mas sobre Aquele que me criou. Que eu viva com propósito, paixão e clareza sobre quem Tu és em mim. Amém.",
+      verse: "Jeremias 29:11 — Porque sou eu que conheço os planos que tenho para vocês — planos de fazê-los prosperar."
+    },
+    {
+      title: "🎯 Oração: Onde Estou Indo?",
+      text: "Pai, às vezes me sinto perdido sem saber para onde caminhar. As vozes do mundo me dizem o que ser, o que ter, onde chegar — mas a Tua voz diz: 'Você já tem valor em Mim.' Ajuda-me a não medir meu propósito pelo aplauso dos outros, mas pelo Teu sorriso sobre mim. Quero viver cada dia como uma oferta, não como uma corrida. Que o meu propósito comece na adoração e transborde em serviço. Amém.",
+      verse: "Efésios 2:10 — Pois somos criação de Deus, criados em Cristo Jesus para fazer boas obras."
+    },
+    {
+      title: "🎯 Oração: Feito Para Mais",
+      text: "Deus, recuso-me a acreditar que fui criado para mediocridade. Tu plantastes eternidade no meu coração e sonhos maiores do que eu consigo carregar sozinho. Hoje entrego esses sonhos nas Tuas mãos — não para que Tu os mates, mas para que Tu os multipliques. Molda meu caráter antes de ampliar meu alcance. Forma-me em Cristo antes de me lançar ao mundo. Amém.",
+      verse: "Romanos 8:28 — Sabemos que todas as coisas cooperam para o bem daqueles que amam a Deus."
+    },
+    {
+      title: "🎯 Oração: Minha História Tem Sentido",
+      text: "Senhor, há partes da minha história que eu queria apagar — erros, vergonhas, momentos de fraqueza. Mas Tu és o Deus que redime tudo. Cada cicatriz pode virar testemunho, cada deserto pode florir. Confio que nada do que vivi foi desperdiçado nas Tuas mãos. Usa minha história exatamente como ela é para tocar quem ainda está no meio da delas. Amém.",
+      verse: "Isaías 61:3 — Para dar-lhes uma coroa em vez de cinzas, óleo de alegria em vez de luto."
+    }
+  ],
+  faith: [
+    {
+      title: "✝️ Oração da Fé",
+      text: "Pai, há momentos em que a minha fé tremeu. Dias em que o silêncio pareceu abandono. Mas hoje eu me lembro: Tu nunca me deixaste. Aumenta a minha fé — não a fé que precisa ver para crer, mas a fé que crê antes de ver. Que eu me aferre à Tua Palavra como âncora da minha alma. Quando as tempestades vierem, que eu lembre que Tu já venceste. Amém.",
+      verse: "Hebreus 11:1 — Fé é a certeza daquilo que esperamos e a prova das coisas que não vemos."
+    },
+    {
+      title: "✝️ Oração: Confio em Ti",
+      text: "Deus, hoje não tenho respostas — mas tenho o Teu nome. Não tenho certeza do amanhã — mas tenho a certeza de quem Tu és. A minha fé não se apoia no que vejo, mas em quem Tu és quando eu não consigo enxergar. Quando a dúvida bater, que eu volte à cruz. Quando o medo apertar, que eu lembre da ressurreição. Tu és fiel. Isso é suficiente. Amém.",
+      verse: "Provérbios 3:5 — Confie no Senhor de todo o seu coração e não se apoie em seu próprio entendimento."
+    },
+    {
+      title: "✝️ Oração: Fé em Meio à Crise",
+      text: "Pai, esta semana foi pesada. As notícias são difíceis, o coração está cansado, e a fé parece frágil. Mas eu olho para Teus filhos que atravessaram o Mar Vermelho, que sobreviveram o fogo, que saíram do túmulo — e sei que Tu não mudaste. Reaviva em mim a fé que move montanhas. Que eu seja mais convencido da Tua presença do que das minhas circunstâncias. Amém.",
+      verse: "Mateus 17:20 — Se vocês tiverem fé do tamanho de um grão de mostarda, nada será impossível para vocês."
+    },
+    {
+      title: "✝️ Oração: Mesmo Assim, Confio",
+      text: "Senhor, mesmo que os planos mudem, mesmo que as portas se fechem, mesmo que a dor demore a passar — mesmo assim, confio. Não porque entendi tudo, mas porque aprendi que Tu és bom. Que esta fé imperfeita que eu tenho seja suficiente para Ti transformares em algo poderoso. Eis aqui meu coração cheio de dúvidas — e fé. Amém.",
+      verse: "Salmo 46:10 — Aquietai-vos e sabei que eu sou Deus."
+    }
+  ],
+  strength: [
+    {
+      title: "💪 Oração da Força",
+      text: "Deus Forte, reconheço que sozinho não consigo. Minhas forças têm limite, mas as Tuas não. Enche-me do Teu Espírito Santo — não para que eu pareça forte, mas para que Tu sejas glorificado na minha fraqueza. Quando a ansiedade apertar, quando o cansaço for fundo — que eu encontre renovação na Tua presença. Sou Teu e isso é suficiente. Amém.",
+      verse: "Filipenses 4:13 — Posso tudo naquele que me fortalece."
+    },
+    {
+      title: "💪 Oração: Levanta-me, Senhor",
+      text: "Pai, estou cansado. O peso do dia a dia às vezes é demais para meus ombros. Mas Tua Palavra diz que os que esperam em Ti renovarão as forças. Então, aqui estou — esperando. Não correndo, não tentando resolver tudo sozinho. Apenas esperando em Ti. Renova-me como a águia. Que eu volte a caminhar, correr e voar — na Tua força, não na minha. Amém.",
+      verse: "Isaías 40:31 — Os que esperam no Senhor renovam as suas forças."
+    },
+    {
+      title: "💪 Oração: Força Para Resistir",
+      text: "Deus, as tentações são reais. A pressão do mundo para que eu abandone meus valores é constante. Não quero fingir que sou forte — sou fraco. Por isso preciso de Ti em cada escolha, em cada momento, em cada detalhe. Seja o Guardião do meu coração. Fortalece minha mente, purifica meus desejos e que meu caráter seja construído no silêncio da oração. Amém.",
+      verse: "1 Coríntios 10:13 — Deus é fiel e não permitirá que vocês sejam tentados além do que podem suportar."
+    },
+    {
+      title: "💪 Oração: Força Para Perdoar",
+      text: "Senhor, precisso de força para perdoar. Não é fácil. A mágoa é real, a traição deixou marca. Mas sei que a falta de perdão me aprisiona mais do que a quem eu não perdoo. Dá-me a força que só vem do alto — a força de amar o inimigo, de abençoar quem me amaldiçoa, de ser livre. Como Tu me perdoaste, que eu perdoe. Amém.",
+      verse: "Colossenses 3:13 — Suportem-se uns aos outros e perdoem-se mutuamente."
+    }
+  ],
+  gratitude: [
+    {
+      title: "🙌 Oração de Gratidão",
+      text: "Senhor, obrigado. Obrigado pelos dias difíceis que me moldaram. Obrigado pelas pessoas que colocastes no meu caminho. Obrigado pela salvação — o maior presente que jamais poderia receber. Que a gratidão seja o ritmo da minha vida. Que eu nunca me acostume com a Tua graça. Que eu enxergue Tua mão em tudo — no pequeno e no grande. Amém.",
+      verse: "1 Tessalonicenses 5:18 — Deem graças em todas as circunstâncias."
+    },
+    {
+      title: "🙌 Oração: Gratidão pelo Simples",
+      text: "Pai, obrigado pela manhã de hoje. Pelo ar que respiro, pela cama onde dormi, pela família que tenho. Quantas vezes peço o que não tenho e esqueço de agradecer pelo que já recebi? Abre meus olhos para a abundância que me cerca. Que eu não precise de uma crise para enxergar Tuas bênçãos. Que o meu coração seja permanentemente grato. Amém.",
+      verse: "Salmo 118:24 — Este é o dia que o Senhor fez; alegremo-nos e nos regozijemos nele."
+    },
+    {
+      title: "🙌 Oração: Obrigado Mesmo Assim",
+      text: "Senhor, não é fácil agradecer quando dói. Mas escolho a gratidão como ato de fé — não porque tudo está bem, mas porque Tu és bom mesmo quando eu não entendo. Obrigado pela força que me deste quando quase desisti. Obrigado pelas portas que fechaste e que me pouparam de armadilhas. Obrigado por me conhecer melhor do que eu me conheço. Amém.",
+      verse: "Habacuque 3:17-18 — Ainda que a figueira não floresça... eu me alegrarei no Senhor."
+    },
+    {
+      title: "🙌 Oração: Vida Que Transborda",
+      text: "Deus, quero ser uma pessoa de gratidão genuína. Não a gratidão de Instagram, mas a que transforma o coração. A que me faz olhar para o outro com generosidade, porque recebi muito. A que me faz servir sem calcular, porque fui servido na cruz. Que minha vida inteira seja uma oferta de louvor — cada escolha, cada palavra, cada ato. Amém.",
+      verse: "João 10:10 — Eu vim para que tenham vida, e a tenham em abundância."
+    }
+  ],
+  youth: [
+    {
+      title: "🌟 Oração da Juventude",
+      text: "Deus dos jovens, aqui estou! Jovem, cheio de sonhos, dúvidas e paixão. Usa esta geração, Senhor. Usa a nossa música, a nossa criatividade, a nossa coragem para transformar o mundo. Que nós não sejamos desprezados por ser jovens — mas que sejamos exemplos em amor, fé e pureza. Que o Teu fogo queime em cada coração jovem do Brasil. Amém.",
+      verse: "1 Timóteo 4:12 — Não deixe ninguém desprezar você por ser jovem, mas seja um exemplo."
+    },
+    {
+      title: "🌟 Oração: Geração que Adora",
+      text: "Pai, somos a geração que nasceu com tudo na palma da mão — e mesmo assim sentimos um vazio que só Tu preenches. Que os jovens do Brasil descubram que a maior aventura não está numa tela, mas no Teu chamado. Que o louvor que cantamos no culto transborde para segunda-feira, para a escola, para casa. Que sejamos diferentes — e orgulhosos disso. Amém.",
+      verse: "Salmo 71:17 — Desde a minha juventude, ó Deus, tens sido o meu professor."
+    },
+    {
+      title: "🌟 Oração: Jovem com Propósito",
+      text: "Senhor, que eu não desperdice a minha juventude em coisas que não têm peso eterno. O mundo me diz para viver sem compromisso, sem propósito, sem entrega. Mas Tua Palavra me chama a algo maior. Aceito o desafio de ser jovem com integridade, jovem com missão, jovem com fé adulta. Aqui estou — envia-me! Amém.",
+      verse: "Eclesiastes 12:1 — Lembra-te do teu Criador nos dias da tua juventude."
+    },
+    {
+      title: "🌟 Oração: Fogo que Não Apaga",
+      text: "Deus, não quero ser um cristão morno. Não quero uma fé de domingo que desaparece na segunda. Quero o fogo que Pentecostes acendeu — o que consume o orgulho, purifica o coração e lança para o serviço. Que a JEM seja uma geração que arde por Ti. Que quando o mundo nos veja, veja alguém apaixonado pelo Criador. Amém.",
+      verse: "Atos 2:17 — Nos últimos dias, derramarei do meu Espírito sobre toda a humanidade."
+    }
+  ]
 };
+
+// Índice atual por categoria para não repetir
+const prayerIndex = {purpose:0, faith:0, strength:0, gratitude:0, youth:0};
+
+function getNextPrayer(cat) {
+  const list = PRAYERS[cat];
+  const idx = prayerIndex[cat];
+  prayerIndex[cat] = (idx + 1) % list.length;
+  return list[idx];
+}
+
+// Mantém compatibilidade com código legado
+const PRAYER_STATIC = Object.fromEntries(
+  Object.keys(PRAYERS).map(k => [k, PRAYERS[k][0]])
+);
+
 let currentPrayerCat = 'purpose';
 
 function selectPrayer(el, cat) {
   document.querySelectorAll('.prayer-cat-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   currentPrayerCat = cat;
-  renderPrayerStatic(PRAYER_STATIC[cat]);
+  renderPrayerStatic(getNextPrayer(cat));
 }
 
 function renderPrayerStatic(p) {
@@ -1278,9 +1547,19 @@ function renderPrayerStatic(p) {
   `;
 }
 
+let aiGenCount = 0;
 async function generatePrayer() {
   const btn = document.getElementById('prayer-gen-label');
-  btn.textContent = '⏳ Gerando oração...';
+  // Alterna: ímpar = próxima oração do banco; par = chama IA
+  aiGenCount++;
+  if (aiGenCount % 2 !== 0) {
+    const next = getNextPrayer(currentPrayerCat);
+    renderPrayerStatic(next);
+    showToast('💜 Nova oração carregada!');
+    btn.textContent = '🤖 Gerar com IA agora';
+    return;
+  }
+  btn.textContent = '⏳ Gerando com IA...';
   document.getElementById('prayer-display').innerHTML = `
     <div class="prayer-loading"><div class="spinner-sm"></div> Rick Warren está orando por você...</div>`;
   const catNames = {purpose:'propósito de vida',faith:'fé e confiança em Deus',strength:'força e perseverança',gratitude:'gratidão e bênçãos',youth:'juventude cristã'};
@@ -1309,10 +1588,10 @@ Retorne APENAS este JSON:
       <div class="prayer-text">${parsed.prayer}</div>
       <div class="prayer-verse">${parsed.verse}</div>
     `;
-    btn.textContent = '✨ Gerar Nova Oração com IA';
+    btn.textContent = '✨ Nova Oração / IA';
   } catch(e) {
     renderPrayerStatic(PRAYER_STATIC[currentPrayerCat]);
-    btn.textContent = '✨ Gerar Nova Oração com IA';
+    btn.textContent = '✨ Nova Oração / IA';
     showToast('💜 Oração carregada!');
   }
 }
@@ -1388,44 +1667,172 @@ function toggleSalmo(i) {
 }
 
 // ── QUIZ BÍBLICO ──
-const QUIZ_QUESTIONS = [
-  {q:"Quem construiu a arca para sobreviver ao dilúvio?", opts:["Moisés","Noé","Abraão","Davi"], answer:1, explanation:"Noé construiu a arca por ordem de Deus. Sua família e animais de todas as espécies sobreviveram ao dilúvio (Gênesis 6-9)."},
-  {q:"Quantos dias Jesus ficou no deserto sendo tentado pelo diabo?", opts:["7 dias","30 dias","40 dias","3 dias"], answer:2, explanation:"Jesus passou 40 dias e 40 noites jejuando no deserto, onde foi tentado pelo diabo (Mateus 4:1-11)."},
-  {q:"Qual era a profissão de Pedro antes de seguir Jesus?", opts:["Carpinteiro","Pescador","Comerciante","Pastor"], answer:1, explanation:"Pedro era pescador no Mar da Galileia quando Jesus o chamou dizendo: 'Venha, e eu farei de você pescador de homens' (Mateus 4:18-19)."},
-  {q:"Com quantas pedras Davi derrotou Golias?", opts:["3 pedras","5 pedras","1 pedra","7 pedras"], answer:2, explanation:"Davi usou apenas UMA pedra na funda. Ela acertou a testa de Golias, que caiu morto (1 Samuel 17:49-50)."},
-  {q:"Qual é o versículo mais curto da Bíblia?", opts:['"Jesus chorou" (João 11:35)','"Orai sem cessar" (1 Ts 5:17)','"Deus é amor" (1 Jo 4:8)','"Alegrai-vos sempre" (Fp 4:4)'], answer:0, explanation:"'Jesus chorou' (João 11:35) é o versículo mais curto da Bíblia em português e em grego. Jesus estava no túmulo de Lázaro."},
-  {q:"Em qual livro da Bíblia está o famoso 'versículo do amor' (capítulo 13)?", opts:["Romanos","Efésios","1 Coríntios","Gálatas"], answer:2, explanation:"1 Coríntios 13 é o famoso 'capítulo do amor', onde Paulo descreve: 'O amor é paciente, o amor é bondoso...'"},
-  {q:"Quem foi engolido por um grande peixe?", opts:["Elias","Jonas","Daniel","Paulo"], answer:1, explanation:"Jonas foi engolido por um grande peixe após fugir da missão que Deus lhe deu. Ele ficou 3 dias no ventre do peixe (Jonas 1-2)."},
-  {q:"Qual era o nome original de Paulo, o apóstolo?", opts:["Barnabé","Saulo","Silas","Tito"], answer:1, explanation:"Paulo se chamava Saulo antes de sua conversão no caminho de Damasco, onde encontrou Jesus de forma sobrenatural (Atos 9)."},
-  {q:"Quantos livros tem a Bíblia no total?", opts:["63 livros","66 livros","72 livros","60 livros"], answer:1, explanation:"A Bíblia Protestante tem 66 livros: 39 no Antigo Testamento e 27 no Novo Testamento."},
-  {q:"O que Jesus multiplicou para alimentar cerca de 5.000 pessoas?", opts:["Pão e vinho","5 pães e 2 peixes","7 pães e 3 peixes","10 pães e 5 peixes"], answer:1, explanation:"Com 5 pães de cevada e 2 peixes de um menino, Jesus alimentou aproximadamente 5.000 homens, além de mulheres e crianças (João 6:1-14)."}
-];
+const QUIZ_BANK = {
+  facil: [
+    {q:"Quem construiu a arca para sobreviver ao dilúvio?", opts:["Moisés","Noé","Abraão","Davi"], answer:1, explanation:"Noé construiu a arca por ordem de Deus. Sua família e animais de todas as espécies sobreviveram ao dilúvio (Gênesis 6-9)."},
+    {q:"Quantos dias Jesus ficou no deserto sendo tentado pelo diabo?", opts:["7 dias","30 dias","40 dias","3 dias"], answer:2, explanation:"Jesus passou 40 dias e 40 noites no deserto, onde foi tentado pelo diabo (Mateus 4:1-11)."},
+    {q:"Qual era a profissão de Pedro antes de seguir Jesus?", opts:["Carpinteiro","Pescador","Comerciante","Pastor"], answer:1, explanation:"Pedro era pescador no Mar da Galileia quando Jesus o chamou dizendo: 'Venha, e eu farei de você pescador de homens' (Mateus 4:18-19)."},
+    {q:"Com quantas pedras Davi derrotou Golias?", opts:["3","5","1","7"], answer:2, explanation:"Davi usou apenas UMA pedra na funda. Ela acertou a testa de Golias, que caiu morto (1 Samuel 17:49-50)."},
+    {q:"Qual é o versículo mais curto da Bíblia?", opts:['"Jesus chorou" (João 11:35)','"Orai sem cessar" (1Ts 5:17)','"Deus é amor" (1Jo 4:8)','"Alegrai-vos sempre" (Fp 4:4)'], answer:0, explanation:"'Jesus chorou' (João 11:35) é o versículo mais curto da Bíblia. Jesus estava no túmulo de Lázaro quando derramou lágrimas."},
+    {q:"Quem foi engolido por um grande peixe?", opts:["Elias","Jonas","Daniel","Paulo"], answer:1, explanation:"Jonas foi engolido por um grande peixe após fugir da missão que Deus lhe deu. Ele ficou 3 dias no ventre do peixe (Jonas 1-2)."},
+    {q:"Qual era o nome original do apóstolo Paulo?", opts:["Barnabé","Saulo","Silas","Tito"], answer:1, explanation:"Paulo se chamava Saulo antes de sua conversão no caminho de Damasco, onde encontrou Jesus (Atos 9)."},
+    {q:"Quantos livros tem a Bíblia Protestante?", opts:["63","66","72","60"], answer:1, explanation:"A Bíblia Protestante tem 66 livros: 39 no Antigo Testamento e 27 no Novo Testamento."},
+    {q:"O que Jesus multiplicou para alimentar 5.000 pessoas?", opts:["Pão e vinho","5 pães e 2 peixes","7 pães e 3 peixes","10 pães"], answer:1, explanation:"Com 5 pães de cevada e 2 peixes de um menino, Jesus alimentou aproximadamente 5.000 homens (João 6:1-14)."},
+    {q:"Em qual cidade Jesus nasceu?", opts:["Nazaré","Jerusalém","Belém","Cafarnaum"], answer:2, explanation:"Jesus nasceu em Belém da Judeia, conforme profetizado em Miquéias 5:2 e registrado em Lucas 2:4-7."},
+    {q:"Quem foi o primeiro homem criado por Deus?", opts:["Abel","Noé","Adão","Caim"], answer:2, explanation:"Adão foi o primeiro homem criado por Deus, formado do pó da terra (Gênesis 2:7)."},
+    {q:"Qual animal falou com Eva no jardim do Éden?", opts:["Uma águia","Uma serpente","Um leão","Um cordeiro"], answer:1, explanation:"A serpente, que representava Satanás, enganou Eva no jardim do Éden (Gênesis 3:1-5)."},
+    {q:"Qual mar foi dividido por Moisés?", opts:["Mar Morto","Mar Mediterrâneo","Mar Vermelho","Mar da Galileia"], answer:2, explanation:"Deus usou Moisés para dividir o Mar Vermelho, permitindo que os israelitas escapassem do Egito (Êxodo 14)."},
+    {q:"Quem foi lançado na cova dos leões?", opts:["Paulo","José","Daniel","Elias"], answer:2, explanation:"Daniel foi lançado na cova dos leões por orar a Deus, mas saiu ileso porque Deus enviou um anjo para fechar a boca dos leões (Daniel 6)."},
+    {q:"Qual fruto Eva comeu que era proibido?", opts:["Uma maçã","Uma uva","O fruto do conhecimento do bem e do mal","Uma figueira"], answer:2, explanation:"A Bíblia diz 'fruto da árvore do conhecimento do bem e do mal'. Não especifica que era uma maçã (Gênesis 3:6)."}
+  ],
+  medio: [
+    {q:"Em qual livro da Bíblia está o famoso capítulo 13, sobre o amor?", opts:["Romanos","Efésios","1 Coríntios","Gálatas"], answer:2, explanation:"1 Coríntios 13 é o 'capítulo do amor', onde Paulo descreve: 'O amor é paciente, o amor é bondoso...'"},
+    {q:"Quantos apóstolos Jesus escolheu?", opts:["7","10","12","14"], answer:2, explanation:"Jesus escolheu 12 apóstolos, representando as 12 tribos de Israel (Mateus 10:1-4)."},
+    {q:"Quem traiu Jesus por 30 moedas de prata?", opts:["Pedro","Tomé","Judas Iscariotes","João"], answer:2, explanation:"Judas Iscariotes traiu Jesus por 30 moedas de prata, entregando-o aos líderes religiosos (Mateus 26:14-16)."},
+    {q:"Qual profeta foi levado ao céu em um carro de fogo?", opts:["Elias","Eliseu","Isaías","Jeremias"], answer:0, explanation:"Elias foi arrebatado ao céu em um carro de fogo e cavalos de fogo, diante de Eliseu (2 Reis 2:11)."},
+    {q:"Quantos dias Lázaro estava morto quando Jesus o ressuscitou?", opts:["1 dia","2 dias","3 dias","4 dias"], answer:3, explanation:"Lázaro estava morto há 4 dias quando Jesus o ressuscitou, mostrando seu poder sobre a morte (João 11:39)."},
+    {q:"Qual é o primeiro livro do Novo Testamento?", opts:["Marcos","Lucas","Mateus","João"], answer:2, explanation:"Mateus é o primeiro livro do Novo Testamento, escrito para audiência judaica e começando com a genealogia de Jesus."},
+    {q:"Quem escreveu a maior parte das epístolas do Novo Testamento?", opts:["Pedro","João","Paulo","Tiago"], answer:2, explanation:"Paulo escreveu 13 ou 14 epístolas do Novo Testamento, mais do que qualquer outro autor bíblico."},
+    {q:"Qual rio Jesus foi batizado?", opts:["Rio Nilo","Rio Jordão","Rio Eufrates","Rio Tigre"], answer:1, explanation:"Jesus foi batizado por João Batista no Rio Jordão, onde o Espírito Santo desceu sobre Ele como uma pomba (Mateus 3:13-17)."},
+    {q:"Quantas pessoas subiram com Jesus ao monte da transfiguração?", opts:["Nenhuma","2","3","5"], answer:2, explanation:"Pedro, Tiago e João (3 discípulos) subiram com Jesus ao monte onde Ele foi transfigurado e Moisés e Elias apareceram (Mateus 17:1-3)."},
+    {q:"Qual foi o primeiro milagre de Jesus?", opts:["Alimentar 5.000","Curar um cego","Transformar água em vinho","Ressuscitar Lázaro"], answer:2, explanation:"O primeiro milagre de Jesus foi transformar água em vinho nas bodas de Caná, a pedido de sua mãe Maria (João 2:1-11)."},
+    {q:"Quem interpretou os sonhos do faraó no Egito?", opts:["Moisés","Abraão","José","Davi"], answer:2, explanation:"José, filho de Jacó, interpretou os sonhos do faraó: 7 anos de fartura seguidos de 7 anos de fome (Gênesis 41)."},
+    {q:"Em qual monte Moisés recebeu os 10 Mandamentos?", opts:["Monte Carmelo","Monte Sinai","Monte das Oliveiras","Monte Hermom"], answer:1, explanation:"Moisés recebeu os 10 Mandamentos no Monte Sinai (também chamado Horebe), escritos por Deus em tábuas de pedra (Êxodo 19-20)."},
+    {q:"Qual mulher da Bíblia era conhecida por sua lealdade à sogra Noemi?", opts:["Ester","Rute","Débora","Raque"], answer:1, explanation:"Rute disse à sua sogra Noemi: 'Para onde você for, irei; onde você morar, morarei; seu povo será meu povo' (Rute 1:16)."},
+    {q:"Quantos irmãos mais velhos José tinha?", opts:["6","10","11","9"], answer:1, explanation:"José era o décimo primeiro filho de Jacó. Tinha 10 irmãos mais velhos e um mais novo, Benjamim (Gênesis 35:22-26)."},
+    {q:"Quem foi a primeira mártir feminina mencionada na Bíblia?", opts:["Maria Madalena","Lídia","Estéfana","Safira"], answer:3, explanation:"Safira, junto com seu marido Ananias, mentiu ao Espírito Santo sobre o dinheiro da venda de uma propriedade e caiu morta (Atos 5:1-11)."}
+  ],
+  dificil: [
+    {q:"Quantos anos Matusalém, o homem mais velho da Bíblia, viveu?", opts:["900 anos","950 anos","969 anos","999 anos"], answer:2, explanation:"Matusalém viveu 969 anos, sendo o homem mais velho registrado na Bíblia (Gênesis 5:27)."},
+    {q:"Qual é o nome do anjo que anunciou o nascimento de Jesus a Maria?", opts:["Miguel","Rafael","Gabriel","Uriel"], answer:2, explanation:"O anjo Gabriel foi enviado por Deus para anunciar a Maria que ela conceberia e daria à luz o Filho de Deus (Lucas 1:26-38)."},
+    {q:"Em qual capítulo de Isaías está a profecia do Servo Sofredor, referente a Jesus?", opts:["Capítulo 40","Capítulo 45","Capítulo 53","Capítulo 60"], answer:2, explanation:"Isaías 53 é a profecia do Servo Sofredor, escrita 700 anos antes de Cristo, descrevendo com detalhes a crucificação de Jesus."},
+    {q:"Quem foi o rei de Israel que tinha 700 esposas e 300 concubinas?", opts:["Davi","Salomão","Roboão","Jeroboão"], answer:1, explanation:"Salomão tinha 700 esposas de origem nobre e 300 concubinas, e elas desviaram seu coração para outros deuses (1 Reis 11:3)."},
+    {q:"Qual tribo de Israel recebeu as cidades levíticas, mas não um território próprio?", opts:["Tribo de Judá","Tribo de Levi","Tribo de Dã","Tribo de Benjamim"], answer:1, explanation:"A tribo de Levi não recebeu território próprio. Os levitas receberam 48 cidades espalhadas pelo território das outras tribos (Números 35:1-8)."},
+    {q:"Qual palavra hebraica, usada 27 vezes em Apocalipse, significa 'cordeiro'?", opts:["Adonai","Arnion","Shalom","Elohim"], answer:1, explanation:"'Arnion' é a palavra grega (não hebraica) usada em Apocalipse para descrever Jesus como o Cordeiro de Deus — aparece 28 vezes."},
+    {q:"Quantos anos os israelitas ficaram no deserto antes de entrar em Canaã?", opts:["20 anos","30 anos","40 anos","50 anos"], answer:2, explanation:"Os israelitas ficaram 40 anos no deserto por causa de sua incredulidade e rebeldia após saírem do Egito (Números 14:33-34)."},
+    {q:"Qual foi o pecado de Uzá que o levou à morte?", opts:["Roubar ouro do templo","Tocar na arca da aliança","Adorar ídolos","Desobedecer a Moisés"], answer:1, explanation:"Uzá tocou na Arca da Aliança para impedi-la de cair, e Deus o feriu ali mesmo. A Arca era sagrada e só os levitas poderiam carregá-la (2 Samuel 6:6-7)."},
+    {q:"Qual apóstolo foi o primeiro a ser martirizado, segundo o livro de Atos?", opts:["Pedro","Paulo","Tiago, filho de Zebedeu","Estêvão"], answer:2, explanation:"Tiago, filho de Zebedeu e irmão de João, foi morto à espada por ordem do rei Herodes, sendo o primeiro apóstolo martirizado (Atos 12:1-2). Estêvão foi o primeiro mártir, mas era diácono, não apóstolo."},
+    {q:"Quantos seletos (144.000) são mencionados em Apocalipse e de quantas tribos vêm?", opts:["De 10 tribos","De 12 tribos","De 7 tribos","De 6 tribos"], answer:1, explanation:"Os 144.000 seletos vêm de 12 tribos de Israel, sendo 12.000 de cada tribo (Apocalipse 7:4-8)."},
+    {q:"Em qual livro da Bíblia a palavra 'Deus' não aparece nenhuma vez?", opts:["Rute","Ester","Cantares de Salomão","Eclesiastes"], answer:1, explanation:"O livro de Ester é famoso por não mencionar o nome de Deus diretamente em nenhuma vez, embora Sua providência seja evidente em toda a narrativa."},
+    {q:"Quem foi o pai de João Batista?", opts:["Zacarias","José","Simão","Eliseu"], answer:0, explanation:"Zacarias, um sacerdote, foi o pai de João Batista. Ele ficou mudo por não acreditar na promessa do anjo Gabriel (Lucas 1:5-25)."},
+    {q:"Qual é o nome da esposa de Abraão antes de ser renomeada Sara?", opts:["Sarai","Rebeca","Raquel","Hagar"], answer:0, explanation:"Sarai era o nome original da esposa de Abraão. Deus mudou seu nome para Sara (princesa) quando lhe prometeu que ela daria à luz Isaque (Gênesis 17:15)."},
+    {q:"Em qual cidade Paulo foi convertido ao cristianismo?", opts:["Jerusalém","Antioquia","No caminho de Damasco","Corinto"], answer:2, explanation:"Paulo (Saulo) teve seu encontro com Jesus ressuscitado no caminho de Damasco, onde ficou cego por três dias antes de ser batizado (Atos 9:1-19)."},
+    {q:"Qual profeta do AT casou com uma prostituta por ordem de Deus?", opts:["Isaías","Jeremias","Oséias","Amós"], answer:2, explanation:"Oséias casou-se com Gomér, uma mulher de prostituição, como símbolo do amor fiel de Deus por Israel, mesmo quando Israel o traía (Oséias 1:2-3)."}
+  ]
+};
 
-let quizIndex = 0, quizScore = 0, quizAnswered = false;
+let quizIndex = 0, quizScore = 0, quizAnswered = false, quizDifficulty = null, quizQuestions = [];
 
 function renderQuiz() {
+  quizDifficulty = null;
   quizIndex = 0; quizScore = 0;
+  document.getElementById('quiz-progress').textContent = 'Escolha a dificuldade';
+  const el = document.getElementById('quiz-content');
+  el.innerHTML = `
+    <div style="padding:8px 0 20px;">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--mint),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;">🧩 Quiz Bíblico</div>
+        <div style="font-size:14px;color:var(--muted);">Escolha o nível de dificuldade e teste seus conhecimentos!</div>
+      </div>
+
+      <div onclick="startQuiz('facil')" style="background:linear-gradient(135deg,rgba(0,245,196,.15),rgba(0,194,255,.08));border:1px solid rgba(0,245,196,.4);border-radius:22px;padding:22px 20px;margin-bottom:14px;cursor:pointer;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:36px;">🟢</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:900;color:var(--mint);margin-bottom:4px;">Fácil</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.5;">Histórias clássicas da Bíblia que você provavelmente conhece. Ótimo para começar!</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="background:rgba(0,245,196,.15);border:1px solid rgba(0,245,196,.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--mint);">10 perguntas</span>
+          <span style="background:rgba(0,245,196,.15);border:1px solid rgba(0,245,196,.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--mint);">AT + NT</span>
+        </div>
+      </div>
+
+      <div onclick="startQuiz('medio')" style="background:linear-gradient(135deg,rgba(255,225,53,.12),rgba(255,107,53,.08));border:1px solid rgba(255,225,53,.4);border-radius:22px;padding:22px 20px;margin-bottom:14px;cursor:pointer;transition:transform .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:36px;">🟡</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:900;color:var(--yellow);margin-bottom:4px;">Médio</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.5;">Perguntas que exigem um pouco mais de conhecimento. Para quem lê a Bíblia com frequência.</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="background:rgba(255,225,53,.15);border:1px solid rgba(255,225,53,.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--yellow);">10 perguntas</span>
+          <span style="background:rgba(255,225,53,.15);border:1px solid rgba(255,225,53,.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--yellow);">Detalhes bíblicos</span>
+        </div>
+      </div>
+
+      <div onclick="startQuiz('dificil')" style="background:linear-gradient(135deg,rgba(255,61,154,.12),rgba(123,47,255,.08));border:1px solid rgba(255,61,154,.4);border-radius:22px;padding:22px 20px;cursor:pointer;transition:transform .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:36px;">🔴</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:900;color:var(--pink);margin-bottom:4px;">Difícil</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.5;">Para os verdadeiros estudiosos da Palavra! Perguntas profundas e específicas.</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="background:rgba(255,61,154,.15);border:1px solid rgba(255,61,154,.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--pink);">10 perguntas</span>
+          <span style="background:rgba(255,61,154,.15);border:1px solid rgba(255,61,154,.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--pink);">Nível avançado</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function startQuiz(difficulty) {
+  quizDifficulty = difficulty;
+  quizIndex = 0; quizScore = 0;
+  // Embaralha e pega 10 perguntas aleatórias do nível escolhido
+  const pool = [...QUIZ_BANK[difficulty]];
+  for(let i = pool.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  quizQuestions = pool.slice(0, 10);
   showQuestion();
 }
 
 function showQuestion() {
   const el = document.getElementById('quiz-content');
-  document.getElementById('quiz-progress').textContent = quizIndex < QUIZ_QUESTIONS.length ? 'Pergunta '+(quizIndex+1)+' de '+QUIZ_QUESTIONS.length : 'Resultado';
-  if(quizIndex >= QUIZ_QUESTIONS.length) {
-    const pct = Math.round(quizScore/QUIZ_QUESTIONS.length*100);
-    let msg = pct >= 80 ? '🏆 Incrível! Você conhece a Palavra de Deus!' : pct >= 50 ? '🌟 Muito bom! Continue estudando a Bíblia!' : '💪 Continue! Cada leitura te aproxima de Deus!';
+  const total = quizQuestions.length;
+  const diffLabels = {facil:'🟢 Fácil', medio:'🟡 Médio', dificil:'🔴 Difícil'};
+  const diffColors = {facil:'var(--mint)', medio:'var(--yellow)', dificil:'var(--pink)'};
+
+  document.getElementById('quiz-progress').textContent = quizIndex < total
+    ? `Pergunta ${quizIndex+1} de ${total} · ${diffLabels[quizDifficulty]}`
+    : 'Resultado Final';
+
+  if(quizIndex >= total) {
+    const pct = Math.round(quizScore/total*100);
+    let msg, trophy;
+    if(pct === 100) { msg='🏆 Perfeito! Você é um mestre da Palavra de Deus!'; trophy='🏆'; }
+    else if(pct >= 80) { msg='⭐ Excelente! Você conhece muito bem a Bíblia!'; trophy='⭐'; }
+    else if(pct >= 60) { msg='🌟 Muito bom! Continue estudando a Palavra!'; trophy='🌟'; }
+    else if(pct >= 40) { msg='💪 Bom começo! Cada leitura te aproxima de Deus!'; trophy='💪'; }
+    else { msg='📖 Continue lendo a Bíblia — ela transforma a vida!'; trophy='📖'; }
+
     el.innerHTML = `<div class="quiz-score">
-      <div class="quiz-score-num">${quizScore}/${QUIZ_QUESTIONS.length}</div>
-      <div class="quiz-score-label">${pct}% de acertos</div>
+      <div style="font-size:52px;margin-bottom:8px;">${trophy}</div>
+      <div class="quiz-score-num">${quizScore}/${total}</div>
+      <div class="quiz-score-label">${pct}% de acertos · ${diffLabels[quizDifficulty]}</div>
       <div class="quiz-score-msg">${msg}</div>
-      <button class="modal-close" style="margin-top:20px;width:100%;background:linear-gradient(135deg,var(--mint),var(--blue));color:#0D0D1A;" onclick="renderQuiz()">🔄 Jogar Novamente</button>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
+        <button class="modal-close" style="width:100%;background:linear-gradient(135deg,var(--mint),var(--blue));color:#0D0D1A;font-weight:800;" onclick="startQuiz('${quizDifficulty}')">🔄 Jogar Novamente (${diffLabels[quizDifficulty]})</button>
+        <button class="modal-close" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);" onclick="renderQuiz()">🎯 Escolher outra dificuldade</button>
+      </div>
     </div>`;
     return;
   }
+
   quizAnswered = false;
-  const q = QUIZ_QUESTIONS[quizIndex];
+  const q = quizQuestions[quizIndex];
+  const color = diffColors[quizDifficulty];
+
   el.innerHTML = `<div class="quiz-card">
-    <div class="quiz-q-num">✦ Pergunta ${quizIndex+1} de ${QUIZ_QUESTIONS.length} · Pontuação: ${quizScore}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div class="quiz-q-num" style="color:${color};">✦ Pergunta ${quizIndex+1} de ${total}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:${color};">Pontos: ${quizScore}</div>
+    </div>
     <div class="quiz-question">${q.q}</div>
     <div class="quiz-options">
       ${q.opts.map((o,i)=>`<button class="quiz-opt" id="qopt-${i}" onclick="answerQuiz(${i})">${o}</button>`).join('')}
@@ -1440,7 +1847,7 @@ function showQuestion() {
 function answerQuiz(chosen) {
   if(quizAnswered) return;
   quizAnswered = true;
-  const q = QUIZ_QUESTIONS[quizIndex];
+  const q = quizQuestions[quizIndex];
   const correct = chosen === q.answer;
   if(correct) quizScore++;
   for(let i=0;i<q.opts.length;i++){
