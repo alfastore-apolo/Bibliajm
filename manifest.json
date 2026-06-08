@@ -2,8 +2,8 @@
   "name": "Bíblia JEM – Juventude em Movimento",
   "short_name": "Bíblia JEM",
   "description": "Bíblia Jovem com linguagem moderna, louvores, orações e desafios de fé.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0D0D1A",
@@ -24,18 +24,17 @@
       "purpose": "any maskable"
     }
   ],
-  "screenshots": [],
   "shortcuts": [
     {
-      "name": "Bíblia",
-      "short_name": "Bíblia",
-      "url": "/?screen=bible",
+      "name": "Início",
+      "short_name": "Início",
+      "url": "./index.html?screen=home",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Orações",
-      "short_name": "Orações",
-      "url": "/?screen=prayer",
+      "name": "Salmos",
+      "short_name": "Salmos",
+      "url": "./index.html?screen=salmos",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]

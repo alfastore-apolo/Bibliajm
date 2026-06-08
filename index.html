@@ -11,7 +11,7 @@
   font-src 'self';
   connect-src 'self' https://bible-api.com https://api.anthropic.com https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com;
   img-src 'self' data: https:;
-  manifest-src 'self';
+  manifest-src 'self' blob:;
 ">
 <!-- SECURITY: Referrer policy -->
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -39,10 +39,10 @@
 <meta property="og:image" content="icon-512.png">
 
 <!-- PWA MANIFEST -->
-<link rel="manifest" id="pwa-manifest" href="manifest.json">
-<!-- Apple touch icon (static) -->
-<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="./manifest.json">
+<!-- Apple touch icon (inline SVG data URI — sem arquivo externo) -->
+<link rel="apple-touch-icon" sizes="192x192" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237B2FFF'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='white'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%237B2FFF'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='white'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E">
 
 <!-- FONTS: SF Pro (iOS native via system font stack) -->
 <style>
@@ -2025,14 +2025,14 @@ renderBooks();
 // O manifesto agora é servido como arquivo estático — sem blob URLs.
 
 // ── Service Worker ──
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js')
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js', { scope: './' })
     .then(reg => {
-      console.log('[JEM] Service Worker registered', reg.scope);
+      console.log('[JEM] Service Worker registrado', reg.scope);
       reg.addEventListener('updatefound', () => {
         const nw = reg.installing;
         nw.addEventListener('statechange', () => {
-          if(nw.state === 'installed' && navigator.serviceWorker.controller){
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
             showToast('🔄 Atualização disponível! Recarregue o app.');
           }
         });
