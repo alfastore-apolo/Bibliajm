@@ -1,39 +1,46 @@
 {
   "hosting": {
+    "site": "bibliajem",
     "public": ".",
     "ignore": [
       "firebase.json",
-      ".github/**",
       "**/.*",
       "**/node_modules/**",
-      "README.md"
+      ".github/**",
+      "*.md"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ],
     "headers": [
       {
-        "source": "/sw.js",
+        "source": "sw.js",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
           { "key": "Service-Worker-Allowed", "value": "/" }
         ]
       },
       {
-        "source": "**/*.@(js|css|png|jpg|svg|ico|woff2)",
+        "source": "**/*.@(js|css|html)",
         "headers": [
-          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+          { "key": "Cache-Control", "value": "no-cache" }
         ]
       },
       {
-        "source": "/",
+        "source": "**/*.@(png|jpg|jpeg|gif|webp|svg|ico|woff2)",
         "headers": [
-          { "key": "Cache-Control", "value": "no-cache" },
-          { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-          { "key": "X-Content-Type-Options", "value": "nosniff" },
-          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          { "key": "Cache-Control", "value": "public, max-age=604800" }
+        ]
+      },
+      {
+        "source": "/.well-known/assetlinks.json",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json" }
         ]
       }
-    ],
-    "rewrites": [
-      { "source": "**", "destination": "/index.html" }
     ]
   }
 }

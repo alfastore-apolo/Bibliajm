@@ -1,33 +1,42 @@
 {
   "name": "Bíblia JEM – Juventude em Movimento",
   "short_name": "Bíblia JEM",
-  "description": "Bíblia Jovem da Juventude em Movimento – Palavra viva, louvores, orações e quiz bíblico.",
+  "description": "Bíblia Jovem com linguagem moderna, louvores, orações e desafios de fé.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0D0D1A",
   "theme_color": "#7B2FFF",
-  "categories": ["education", "lifestyle", "books"],
   "lang": "pt-BR",
+  "categories": ["education", "lifestyle"],
   "icons": [
-    { "src": "/icon-72.png",  "sizes": "72x72",   "type": "image/png" },
-    { "src": "/icon-96.png",  "sizes": "96x96",   "type": "image/png" },
-    { "src": "/icon-128.png", "sizes": "128x128", "type": "image/png" },
-    { "src": "/icon-144.png", "sizes": "144x144", "type": "image/png" },
-    { "src": "/icon-152.png", "sizes": "152x152", "type": "image/png" },
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icon-384.png", "sizes": "384x384", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ],
-  "screenshots": [
     {
-      "src": "/icon-512.png",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Bíblia JEM"
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Bíblia",
+      "short_name": "Bíblia",
+      "url": "/?screen=bible",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Orações",
+      "short_name": "Orações",
+      "url": "/?screen=prayer",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
