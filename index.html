@@ -515,7 +515,7 @@
         <div class="verse-text" id="daily-verse-text"></div>
         <div class="verse-ref" id="daily-verse-ref"></div>
         <div class="hero-actions">
-          <div class="action-btn" onclick="event.stopPropagation();showToast('🔗 Copiado!')">📤 Compartilhar</div>
+          <div class="action-btn" onclick="event.stopPropagation();shareVerse()">📤 Compartilhar</div>
           <div class="action-btn" id="fav-btn" onclick="event.stopPropagation();toggleFav()">🤍 Favoritar</div>
           <div class="action-btn" onclick="openDailyModal();event.stopPropagation()">💭 Refletir</div>
           <div class="action-btn" onclick="event.stopPropagation();refreshDailyVerse()" title="Novo versículo" style="background:rgba(0,245,196,.08);border-color:rgba(0,245,196,.25);color:var(--mint);">
@@ -1477,6 +1477,22 @@ function renderMoodVerses(verses, label, subEl, contentEl) {
     </div>`).join('');
 }
 function toggleFav(){const btn=document.getElementById('fav-btn');const f=btn.textContent.includes('🤍');btn.textContent=f?'❤️ Favoritado':'🤍 Favoritar';showToast(f?'❤️ Adicionado aos favoritos!':'💔 Removido');}
+
+function shareVerse(){
+  const text = document.getElementById('daily-verse-text').textContent;
+  const ref  = document.getElementById('daily-verse-ref').textContent;
+  if(!text) return;
+  const msg = `📖 *Versículo do Dia*\n\n_"${text}"_\n\n✨ *${ref}*\n\n🙏 Compartilhado pelo app *Bíblia JEM – Juventude em Movimento*`;
+  // Tenta Web Share API (Android nativo)
+  if(navigator.share){
+    navigator.share({ title: 'Versículo do Dia – Bíblia JEM', text: msg })
+      .catch(()=>{});
+    return;
+  }
+  // Fallback: abre WhatsApp direto
+  const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 
 // ── PRAYER ──
